@@ -1,0 +1,59 @@
+services:
+
+  postgres:
+    image: postgres:18
+
+    container_name: flashlink-postgres
+
+    environment:
+      POSTGRES_DB: flashlink
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "@7EKK8TL5"
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+
+    container_name: flashlink-redis
+
+    ports:
+      - "6379:6379"
+
+  api:
+    build: .
+
+    container_name: flashlink-api
+
+    ports:
+      - "8000:8000"
+
+    env_file:
+      - .env
+
+    depends_on:
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+
+  nginx:
+    image: nginx:latest
+
+    container_name: flashlink-nginx
+
+    ports:
+      - "80:80"
+
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:

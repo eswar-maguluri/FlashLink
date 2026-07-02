@@ -10,25 +10,37 @@ from app.core.base62 import encode
 from fastapi.responses import RedirectResponse
 from fastapi import HTTPException
 from app.dependencies.auth import get_current_user
-
+from app.cache.redis_client import redis_client
+from fastapi import Request
+from app.middleware.redis_rate_limiter import RedisRateLimiter
+from app.models import AnalyticsEvent
 router = APIRouter()
 generator = SnowflakeGenerator(
     machine_id=1
 )
+rate_limiter = RedisRateLimiter(
+    max_tokens=3,
+    refill_rate=5
+)
 
 @router.post("/shorten")
 def shorten_url(
-    request: CreateURLRequest,
+    request: Request,
+    body: CreateURLRequest,
     current_user=Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    print("RATE LIMITER CALLED")
+    rate_limiter.is_allowed(
+        f"user:{current_user.id}"
+    )
     url_id = generator.generate()
     short_code = encode(url_id)
     new_url = URL(
         id=url_id,
-        original_url=str(request.url),
+        original_url=str(body.url),
         short_code=short_code,
-        user_id = current_user.id
+        user_id=current_user.id
     )
     db.add(new_url)
     db.commit()
@@ -90,8 +102,20 @@ def delete_url(
 @router.get("/{short_code}")
 def redirect_url(
     short_code: str,
+    request: Request,
     db: Session = Depends(get_db)
 ):
+    # Check Redis first
+    cached_url = redis_client.get(
+        f"url:{short_code}"
+    )
+    if cached_url:
+        print("CACHE HIT")
+
+        return RedirectResponse(
+            url=cached_url
+        )
+    print("CACHE MISS")
     url = (
         db.query(URL)
         .filter(
@@ -104,11 +128,24 @@ def redirect_url(
             status_code=404,
             detail="URL not found"
         )
-
+    # Store in Redis for 24 hours
+    redis_client.setex(
+        f"url:{short_code}",
+        86400,
+        url.original_url
+    )
     url.click_count += 1
-
+    analytics_event = AnalyticsEvent(
+        id=generator.generate(),
+        short_code=short_code,
+        ip_address=request.client.host,
+        user_agent=request.headers.get(
+            "user-agent",
+            "Unknown"
+        )
+    )
+    db.add(analytics_event)
     db.commit()
-
     return RedirectResponse(
         url=url.original_url
     )
