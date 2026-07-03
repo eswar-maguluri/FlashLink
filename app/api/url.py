@@ -1,27 +1,31 @@
 from fastapi import APIRouter
 from fastapi import Depends
+from fastapi import Request
+from fastapi import HTTPException
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from app.database import get_db
-from app.schemas import url
 from app.schemas.url import CreateURLRequest
 from app.models import URL
+from app.models import AnalyticsEvent
 from app.core.snowflake import SnowflakeGenerator
 from app.core.base62 import encode
-from fastapi.responses import RedirectResponse
-from fastapi import HTTPException
 from app.dependencies.auth import get_current_user
 from app.cache.redis_client import redis_client
-from fastapi import Request
 from app.middleware.redis_rate_limiter import RedisRateLimiter
-from app.models import AnalyticsEvent
+from app.kafka.producer import get_producer
 router = APIRouter()
+
 generator = SnowflakeGenerator(
     machine_id=1
 )
+
 rate_limiter = RedisRateLimiter(
     max_tokens=3,
     refill_rate=5
 )
+
 
 @router.post("/shorten")
 def shorten_url(
@@ -31,35 +35,42 @@ def shorten_url(
     db: Session = Depends(get_db)
 ):
     print("RATE LIMITER CALLED")
+
     rate_limiter.is_allowed(
         f"user:{current_user.id}"
     )
+
     url_id = generator.generate()
     short_code = encode(url_id)
+
     new_url = URL(
         id=url_id,
         original_url=str(body.url),
         short_code=short_code,
         user_id=current_user.id
     )
+
     db.add(new_url)
     db.commit()
     db.refresh(new_url)
+
     return {
-        "short_url":
-        f"http://localhost:8000/{short_code}"
+        "short_url": f"http://localhost:8000/{short_code}"
     }
+
 
 @router.get("/my-urls")
 def my_urls(
-        current_user=Depends(get_current_user),
-        db: Session = Depends(get_db)
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db)
 ):
-    urls = (db.query(URL)
-            .filter(
-        URL.user_id == current_user.id,
-                 URL.is_active == True)
-            .all()
+    urls = (
+        db.query(URL)
+        .filter(
+            URL.user_id == current_user.id,
+            URL.is_active == True
+        )
+        .all()
     )
 
     return [
@@ -71,7 +82,8 @@ def my_urls(
             "user_id": str(url.user_id)
         }
         for url in urls
-        ]
+    ]
+
 
 @router.delete("/url/{url_id}")
 def delete_url(
@@ -87,35 +99,101 @@ def delete_url(
         )
         .first()
     )
+
     if not url:
         raise HTTPException(
             status_code=404,
             detail="URL not found"
         )
+
     url.is_active = False
     db.commit()
+
     return {
         "message": "URL deleted successfully",
         "url_id": str(url.id)
     }
 
+
+# ==========================
+# ANALYTICS API
+# ==========================
+@router.get("/analytics/{short_code}")
+def get_analytics(
+    short_code: str,
+    db: Session = Depends(get_db)
+):
+    total_clicks = (
+        db.query(AnalyticsEvent)
+        .filter(
+            AnalyticsEvent.short_code == short_code
+        )
+        .count()
+    )
+
+    unique_visitors = (
+        db.query(
+            func.count(
+                func.distinct(
+                    AnalyticsEvent.ip_address
+                )
+            )
+        )
+        .filter(
+            AnalyticsEvent.short_code == short_code
+        )
+        .scalar()
+    )
+
+    recent_clicks = (
+        db.query(AnalyticsEvent)
+        .filter(
+            AnalyticsEvent.short_code == short_code
+        )
+        .order_by(
+            AnalyticsEvent.created_at.desc()
+        )
+        .limit(10)
+        .all()
+    )
+
+    return {
+        "short_code": short_code,
+        "total_clicks": total_clicks,
+        "unique_visitors": unique_visitors,
+        "recent_clicks": [
+            {
+                "ip_address": click.ip_address,
+                "user_agent": click.user_agent,
+                "timestamp": click.created_at
+            }
+            for click in recent_clicks
+        ]
+    }
+
+
+# ==========================
+# REDIRECT URL
+# ==========================
 @router.get("/{short_code}")
 def redirect_url(
     short_code: str,
     request: Request,
     db: Session = Depends(get_db)
 ):
-    # Check Redis first
     cached_url = redis_client.get(
         f"url:{short_code}"
     )
+
     if cached_url:
         print("CACHE HIT")
 
         return RedirectResponse(
             url=cached_url
         )
+
     print("CACHE MISS")
+
     url = (
         db.query(URL)
         .filter(
@@ -123,29 +201,40 @@ def redirect_url(
         )
         .first()
     )
+
     if not url:
         raise HTTPException(
             status_code=404,
             detail="URL not found"
         )
-    # Store in Redis for 24 hours
+
     redis_client.setex(
         f"url:{short_code}",
         86400,
         url.original_url
     )
+
     url.click_count += 1
-    analytics_event = AnalyticsEvent(
-        id=generator.generate(),
-        short_code=short_code,
-        ip_address=request.client.host,
-        user_agent=request.headers.get(
-            "user-agent",
-            "Unknown"
-        )
+
+    producer = get_producer()
+
+    producer.send(
+        "click-events",
+        {
+            "id": str(generator.generate()),
+            "short_code": short_code,
+            "ip_address": request.client.host,
+            "user_agent": request.headers.get(
+                "user-agent",
+                "Unknown"
+            )
+        }
     )
-    db.add(analytics_event)
+
+    producer.flush()
+
     db.commit()
+
     return RedirectResponse(
         url=url.original_url
     )
