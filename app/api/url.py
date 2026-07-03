@@ -15,6 +15,10 @@ from app.dependencies.auth import get_current_user
 from app.cache.redis_client import redis_client
 from app.middleware.redis_rate_limiter import RedisRateLimiter
 from app.kafka.producer import get_producer
+from app.monitoring.metrics import (
+    url_created_counter,
+    redirect_counter
+)
 router = APIRouter()
 
 generator = SnowflakeGenerator(
@@ -26,7 +30,6 @@ rate_limiter = RedisRateLimiter(
     refill_rate=5
 )
 
-
 @router.post("/shorten")
 def shorten_url(
     request: Request,
@@ -36,9 +39,15 @@ def shorten_url(
 ):
     print("RATE LIMITER CALLED")
 
-    rate_limiter.is_allowed(
+    allowed = rate_limiter.is_allowed(
         f"user:{current_user.id}"
     )
+
+    if not allowed:
+        raise HTTPException(
+            status_code=429,
+            detail="Rate limit exceeded"
+        )
 
     url_id = generator.generate()
     short_code = encode(url_id)
@@ -54,11 +63,16 @@ def shorten_url(
     db.commit()
     db.refresh(new_url)
 
+    # Prometheus Metric
+    url_created_counter.inc()
+
     return {
-        "short_url": f"http://localhost:8000/{short_code}"
+        "short_url": f"http://localhost:8000/r/{short_code}"
     }
 
-
+# =====================================
+# USER URLS
+# =====================================
 @router.get("/my-urls")
 def my_urls(
     current_user=Depends(get_current_user),
@@ -85,6 +99,9 @@ def my_urls(
     ]
 
 
+# =====================================
+# DELETE URL
+# =====================================
 @router.delete("/url/{url_id}")
 def delete_url(
     url_id: int,
@@ -115,9 +132,9 @@ def delete_url(
     }
 
 
-# ==========================
+# =====================================
 # ANALYTICS API
-# ==========================
+# =====================================
 @router.get("/analytics/{short_code}")
 def get_analytics(
     short_code: str,
@@ -171,11 +188,7 @@ def get_analytics(
         ]
     }
 
-
-# ==========================
-# REDIRECT URL
-# ==========================
-@router.get("/{short_code}")
+@router.get("/r/{short_code}")
 def redirect_url(
     short_code: str,
     request: Request,
@@ -185,11 +198,18 @@ def redirect_url(
         f"url:{short_code}"
     )
 
+    # CACHE HIT
     if cached_url:
         print("CACHE HIT")
 
+        if isinstance(cached_url, bytes):
+            cached_url = cached_url.decode()
+
+        redirect_counter.inc()
+
         return RedirectResponse(
-            url=cached_url
+            url=cached_url,
+            status_code=307
         )
 
     print("CACHE MISS")
@@ -197,7 +217,8 @@ def redirect_url(
     url = (
         db.query(URL)
         .filter(
-            URL.short_code == short_code
+            URL.short_code == short_code,
+            URL.is_active == True
         )
         .first()
     )
@@ -208,14 +229,17 @@ def redirect_url(
             detail="URL not found"
         )
 
+    # Store in Redis
     redis_client.setex(
         f"url:{short_code}",
         86400,
         url.original_url
     )
 
+    # Update click count
     url.click_count += 1
 
+    # Kafka analytics event
     producer = get_producer()
 
     producer.send(
@@ -235,6 +259,10 @@ def redirect_url(
 
     db.commit()
 
+    # Prometheus metric
+    redirect_counter.inc()
+
     return RedirectResponse(
-        url=url.original_url
+        url=url.original_url,
+        status_code=307
     )

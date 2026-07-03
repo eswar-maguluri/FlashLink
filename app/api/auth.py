@@ -13,6 +13,7 @@ from app.core.security import create_access_token
 from fastapi import Header
 from app.core.security import decode_access_token
 from app.dependencies.auth import get_current_user
+from app.monitoring.metrics import user_registered_counter
 
 router = APIRouter()
 
@@ -49,17 +50,15 @@ def register(
     )
 
     db.add(user)
-
     db.commit()
-
     db.refresh(user)
 
-    return {
-        "message":
-        "User registered successfully",
+    # Prometheus Metric
+    user_registered_counter.inc()
 
-        "user_id":
-        str(user.id)
+    return {
+        "message": "User registered successfully",
+        "user_id": str(user.id)
     }
 
 @router.post("/login")

@@ -9,7 +9,8 @@ from app.api.auth import router as auth_router
 from app.api.url import router as url_router
 from app.core.security import decode_access_token
 from app.schemas.url import CreateURLRequest
-
+from fastapi import Response
+from prometheus_client import generate_latest
 from slowapi.middleware import SlowAPIMiddleware
 from app.middleware.rate_limiter import limiter
 
@@ -109,3 +110,10 @@ def test(data: CreateURLRequest):
     return {
         "url": data.url
     }
+
+@app.get("/metrics")
+def metrics():
+    return Response(
+        generate_latest(),
+        media_type="text/plain"
+    )
