@@ -13,12 +13,24 @@ from fastapi import Response
 from prometheus_client import generate_latest
 from slowapi.middleware import SlowAPIMiddleware
 from app.middleware.rate_limiter import limiter
+from fastapi.middleware.cors import CORSMiddleware
+
 
 generator = SnowflakeGenerator(
     machine_id=1
 )
 app = FastAPI(
     title="FlashLink"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 @app.on_event("startup")

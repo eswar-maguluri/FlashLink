@@ -11,27 +11,22 @@ from datetime import datetime
 
 class AnalyticsEvent(Base):
     __tablename__ = "analytics_events"
-
     id = Column(
         BigInteger,
         primary_key=True
     )
-
     short_code = Column(
         String(20),
         nullable=False
     )
-
     ip_address = Column(
         String(100),
         nullable=False
     )
-
     user_agent = Column(
         Text,
         nullable=False
     )
-
     created_at = Column(
         DateTime,
         default=datetime.utcnow
