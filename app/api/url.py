@@ -17,14 +17,14 @@ from app.middleware.redis_rate_limiter import RedisRateLimiter
 from app.kafka.producer import get_producer
 from app.monitoring.metrics import (
     url_created_counter,
-    redirect_counter
+    redirect_counter,
+    cache_hit_counter,
+    cache_miss_counter
 )
 router = APIRouter()
-
 generator = SnowflakeGenerator(
     machine_id=1
 )
-
 rate_limiter = RedisRateLimiter(
     max_tokens=3,
     refill_rate=5
@@ -38,41 +38,30 @@ def shorten_url(
     db: Session = Depends(get_db)
 ):
     print("RATE LIMITER CALLED")
-
     allowed = rate_limiter.is_allowed(
         f"user:{current_user.id}"
     )
-
     if not allowed:
         raise HTTPException(
             status_code=429,
             detail="Rate limit exceeded"
         )
-
     url_id = generator.generate()
     short_code = encode(url_id)
-
     new_url = URL(
         id=url_id,
         original_url=str(body.url),
         short_code=short_code,
         user_id=current_user.id
     )
-
     db.add(new_url)
     db.commit()
     db.refresh(new_url)
-
-    # Prometheus Metric
     url_created_counter.inc()
-
     return {
         "short_url": f"http://localhost:8000/r/{short_code}"
     }
 
-# =====================================
-# USER URLS
-# =====================================
 @router.get("/my-urls")
 def my_urls(
     current_user=Depends(get_current_user),
@@ -86,7 +75,6 @@ def my_urls(
         )
         .all()
     )
-
     return [
         {
             "id": str(url.id),
@@ -98,10 +86,6 @@ def my_urls(
         for url in urls
     ]
 
-
-# =====================================
-# DELETE URL
-# =====================================
 @router.delete("/url/{url_id}")
 def delete_url(
     url_id: int,
@@ -177,7 +161,6 @@ def get_analytics(
             for click in recent_clicks
         ]
     }
-
 @router.get("/r/{short_code}")
 def redirect_url(
     short_code: str,
@@ -190,13 +173,35 @@ def redirect_url(
 
     if cached_url:
         print("CACHE HIT")
+
         if isinstance(cached_url, bytes):
             cached_url = cached_url.decode()
+
+        producer = get_producer()
+
+        producer.send(
+            "click-events",
+            {
+                "id": str(generator.generate()),
+                "short_code": short_code,
+                "ip_address": request.client.host,
+                "user_agent": request.headers.get(
+                    "user-agent",
+                    "Unknown"
+                )
+            }
+        )
+
+        producer.flush()
+
         redirect_counter.inc()
+
         return RedirectResponse(
             url=cached_url,
             status_code=307
         )
+
+    cache_miss_counter.inc()
     print("CACHE MISS")
     url = (
         db.query(URL)
@@ -211,15 +216,12 @@ def redirect_url(
             status_code=404,
             detail="URL not found"
         )
-
     redis_client.setex(
         f"url:{short_code}",
         86400,
         url.original_url
     )
-
     url.click_count += 1
-
     producer = get_producer()
     producer.send(
         "click-events",
@@ -235,7 +237,6 @@ def redirect_url(
     )
     producer.flush()
     db.commit()
-
     redirect_counter.inc()
     return RedirectResponse(
         url=url.original_url,
