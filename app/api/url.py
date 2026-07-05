@@ -59,7 +59,7 @@ def shorten_url(
     db.refresh(new_url)
     url_created_counter.inc()
     return {
-        "short_url": f"http://localhost:8000/r/{short_code}"
+        "short_url": f"https://flashlink-api.onrender.com/r/{short_code}"
     }
 
 @router.get("/my-urls")
