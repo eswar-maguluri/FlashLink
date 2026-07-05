@@ -170,15 +170,11 @@ def redirect_url(
     cached_url = redis_client.get(
         f"url:{short_code}"
     )
-
     if cached_url:
         print("CACHE HIT")
-
         if isinstance(cached_url, bytes):
             cached_url = cached_url.decode()
-
         producer = get_producer()
-
         producer.send(
             "click-events",
             {
@@ -191,16 +187,12 @@ def redirect_url(
                 )
             }
         )
-
         producer.flush()
-
         redirect_counter.inc()
-
         return RedirectResponse(
             url=cached_url,
             status_code=307
         )
-
     cache_miss_counter.inc()
     print("CACHE MISS")
     url = (

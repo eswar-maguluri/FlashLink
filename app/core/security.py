@@ -8,7 +8,6 @@ from jose import JWTError
 load_dotenv()
 SECRET_KEY = os.getenv('JWT_SECRET_KEY')
 ALGORITHM = os.getenv('JWT_ALGORITHM')
-
 pwd_context = CryptContext(
     schemes=["bcrypt"],
     deprecated="auto"
@@ -16,7 +15,6 @@ pwd_context = CryptContext(
 
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
-
 def verify_password(
     plain_password: str,
     hashed_password: str
@@ -25,28 +23,21 @@ def verify_password(
         plain_password,
         hashed_password
     )
-
 print("SECRET_KEY =", SECRET_KEY)
 print("ALGORITHM =", ALGORITHM)
 
-
 def create_access_token(data: dict):
     to_encode = data.copy()
-
     expire = datetime.utcnow() + timedelta(hours=1)
-
     to_encode.update(
         {"exp": expire}
     )
-
     encoded_jwt = jwt.encode(
         to_encode,
         SECRET_KEY,
         algorithm=ALGORITHM
     )
-
     return encoded_jwt
-
 
 def decode_access_token(token: str):
     try:
@@ -55,11 +46,8 @@ def decode_access_token(token: str):
             SECRET_KEY,
             algorithms=[ALGORITHM]
         )
-
         print("PAYLOAD:", payload)
-
         return payload
-
     except JWTError as e:
         print("JWT ERROR:", str(e))
         return None

@@ -1,17 +1,14 @@
-# Virtual Environment
-venv/
 .venv/
-
-# Environment Variables
-.env
-
-# Python
+venv/
 __pycache__/
 *.pyc
-
-# IDE
+.env
+.env.*
+frontend/node_modules/
+frontend/dist/
 .idea/
 .vscode/
-
-# Database
-*.sqlite3
+grafana_data/
+prometheus_data/
+.DS_Store
+Thumbs.db

@@ -4,7 +4,6 @@ redis_client.set(
     "test",
     "flashlink"
 )
-
 print(
     redis_client.get("test")
 )

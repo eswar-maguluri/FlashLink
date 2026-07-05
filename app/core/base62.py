@@ -3,18 +3,15 @@ ALPHABET = (
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     "abcdefghijklmnopqrstuvwxyz"
 )
-
 def encode(num: int) -> str:
     if num == 0:
         return ALPHABET[0]
     result = []
-
     while num:
         num, remainder = divmod(num, 62)
         result.append(
             ALPHABET[remainder]
         )
-
     return "".join(
         reversed(result)
     )

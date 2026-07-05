@@ -3,9 +3,7 @@ global:
 
 scrape_configs:
   - job_name: "flashlink-api"
-
     metrics_path: /metrics
-
     static_configs:
       - targets:
           - flashlink-api:8000

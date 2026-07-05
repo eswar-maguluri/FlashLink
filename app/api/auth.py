@@ -16,7 +16,6 @@ from app.dependencies.auth import get_current_user
 from app.monitoring.metrics import user_registered_counter
 
 router = APIRouter()
-
 generator = SnowflakeGenerator(
     machine_id=1
 )
@@ -26,7 +25,6 @@ def register(
     request: RegisterRequest,
     db: Session = Depends(get_db)
 ):
-
     existing_user = (
         db.query(User)
         .filter(
@@ -34,13 +32,11 @@ def register(
         )
         .first()
     )
-
     if existing_user:
         raise HTTPException(
             status_code=400,
             detail="Email already exists"
         )
-
     user = User(
         id=generator.generate(),
         email=request.email,
@@ -48,14 +44,11 @@ def register(
             request.password
         )
     )
-
     db.add(user)
     db.commit()
     db.refresh(user)
 
-    # Prometheus Metric
     user_registered_counter.inc()
-
     return {
         "message": "User registered successfully",
         "user_id": str(user.id)
@@ -66,7 +59,6 @@ def login(
     request: LoginRequest,
     db: Session = Depends(get_db)
 ):
-
     user = (
         db.query(User)
         .filter(
@@ -74,13 +66,11 @@ def login(
         )
         .first()
     )
-
     if not user:
         raise HTTPException(
             status_code=401,
             detail="Invalid email or password"
         )
-
     if not verify_password(
         request.password,
         user.password_hash
@@ -89,13 +79,11 @@ def login(
             status_code=401,
             detail="Invalid email or password"
         )
-
     token = create_access_token(
         {
             "sub": str(user.id)
         }
     )
-
     return {
         "access_token": token,
         "token_type": "bearer"
@@ -105,23 +93,18 @@ def login(
 def me(
     authorization: str = Header(...)
 ):
-
     token = authorization.replace(
         "Bearer ",
         ""
     )
-
     payload = decode_access_token(
         token
     )
-
     if not payload:
-
         raise HTTPException(
             status_code=401,
             detail="Invalid token"
         )
-
     return payload
 
 @router.get("/profile")
