@@ -116,25 +116,18 @@ def delete_url(
         )
         .first()
     )
-
     if not url:
         raise HTTPException(
             status_code=404,
             detail="URL not found"
         )
-
     url.is_active = False
     db.commit()
-
     return {
         "message": "URL deleted successfully",
         "url_id": str(url.id)
     }
 
-
-# =====================================
-# ANALYTICS API
-# =====================================
 @router.get("/analytics/{short_code}")
 def get_analytics(
     short_code: str,
@@ -147,7 +140,6 @@ def get_analytics(
         )
         .count()
     )
-
     unique_visitors = (
         db.query(
             func.count(
@@ -161,7 +153,6 @@ def get_analytics(
         )
         .scalar()
     )
-
     recent_clicks = (
         db.query(AnalyticsEvent)
         .filter(
@@ -173,7 +164,6 @@ def get_analytics(
         .limit(10)
         .all()
     )
-
     return {
         "short_code": short_code,
         "total_clicks": total_clicks,
@@ -198,22 +188,16 @@ def redirect_url(
         f"url:{short_code}"
     )
 
-    # CACHE HIT
     if cached_url:
         print("CACHE HIT")
-
         if isinstance(cached_url, bytes):
             cached_url = cached_url.decode()
-
         redirect_counter.inc()
-
         return RedirectResponse(
             url=cached_url,
             status_code=307
         )
-
     print("CACHE MISS")
-
     url = (
         db.query(URL)
         .filter(
@@ -222,26 +206,21 @@ def redirect_url(
         )
         .first()
     )
-
     if not url:
         raise HTTPException(
             status_code=404,
             detail="URL not found"
         )
 
-    # Store in Redis
     redis_client.setex(
         f"url:{short_code}",
         86400,
         url.original_url
     )
 
-    # Update click count
     url.click_count += 1
 
-    # Kafka analytics event
     producer = get_producer()
-
     producer.send(
         "click-events",
         {
@@ -254,14 +233,10 @@ def redirect_url(
             )
         }
     )
-
     producer.flush()
-
     db.commit()
 
-    # Prometheus metric
     redirect_counter.inc()
-
     return RedirectResponse(
         url=url.original_url,
         status_code=307

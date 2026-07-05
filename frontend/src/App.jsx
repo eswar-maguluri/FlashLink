@@ -30,7 +30,7 @@ function App() {
         />
 
         <Route
-          path="/analytics/:shortcode"
+          path="/analytics/:shortCode"
           element={<Analytics />}
         />
 

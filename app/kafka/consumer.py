@@ -1,6 +1,5 @@
 from kafka import KafkaConsumer
 import json
-
 from app.database import SessionLocal
 from app.models import AnalyticsEvent
 

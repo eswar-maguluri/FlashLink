@@ -59,6 +59,18 @@ services:
       kafka:
         condition: service_started
 
+  consumer:
+    build: .
+    container_name: flashlink-consumer
+    command: python -m app.kafka.consumer
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+
   prometheus:
     image: prom/prometheus
     container_name: flashlink-prometheus
