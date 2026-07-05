@@ -181,6 +181,15 @@ def redirect_url(
             detail="URL not found"
         )
     url.click_count += 1
+    event = AnalyticsEvent(
+        short_code=short_code,
+        ip_address=request.client.host,
+        user_agent=request.headers.get(
+            "user-agent",
+            "Unknown"
+        )
+    )
+    db.add(event)
     db.commit()
     redirect_counter.inc()
     return RedirectResponse(
