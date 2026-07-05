@@ -3,26 +3,45 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 function Login() {
-  const [email,setEmail] = useState("");
-  const [password,setPassword] = useState("");
-  const [message,setMessage] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
   const navigate = useNavigate();
   const loginUser = async () => {
+    setMessage("");
+    if (!email || !password) {
+      setMessage("Please enter email and password");
+      return;
+    }
     try {
       const response = await axios.post(
         "https://flashlink-api.onrender.com/auth/login",
         {
           email,
-          password
+          password,
         }
       );
       localStorage.setItem(
         "token",
         response.data.access_token
       );
-      navigate("/dashboard");
-    } catch(error) {
-      setMessage("Login Failed");
+      setMessage("Login Successful");
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 500);
+    } catch (error) {
+      console.error(error);
+      if (error.response?.status === 401) {
+        setMessage("Invalid email or password");
+        const goRegister = window.confirm(
+          "Account not found or password is incorrect.\n\nWould you like to register?"
+        );
+        if (goRegister) {
+          navigate("/register");
+        }
+      } else {
+        setMessage("Server error. Please try again later.");
+      }
     }
   };
   return (
@@ -34,18 +53,30 @@ function Login() {
           type="email"
           placeholder="Email Address"
           value={email}
-          onChange={(e)=>setEmail(e.target.value)}
+          onChange={(e) => setEmail(e.target.value)}
         />
         <input
           type="password"
           placeholder="Password"
           value={password}
-          onChange={(e)=>setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
         />
         <button onClick={loginUser}>
           Login
         </button>
-        <p>{message}</p>
+        {message && (
+          <p
+            style={{
+              color:
+                message === "Login Successful"
+                  ? "#22c55e"
+                  : "#ef4444",
+              marginTop: "10px",
+            }}
+          >
+            {message}
+          </p>
+        )}
         <Link to="/register">
           Create Account
         </Link>

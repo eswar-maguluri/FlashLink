@@ -12,7 +12,7 @@ from app.models import AnalyticsEvent
 from app.core.snowflake import SnowflakeGenerator
 from app.core.base62 import encode
 from app.dependencies.auth import get_current_user
-#from app.cache.redis_client import redis_client
+from app.cache.redis_client import redis_client
 #from app.middleware.redis_rate_limiter import RedisRateLimiter
 from app.kafka.producer import get_producer
 from app.monitoring.metrics import (
@@ -167,6 +167,16 @@ def redirect_url(
     request: Request,
     db: Session = Depends(get_db)
 ):
+    cached_url = redis_client.get(
+        f"url:{short_code}"
+    )
+    if cached_url:
+        print("CACHE HIT")
+        return RedirectResponse(
+            url=cached_url,
+            status_code=307
+        )
+    print("CACHE MISS")
     url = (
         db.query(URL)
         .filter(
@@ -180,6 +190,11 @@ def redirect_url(
             status_code=404,
             detail="URL not found"
         )
+    redis_client.setex(
+        f"url:{short_code}",
+        86400,
+        url.original_url
+    )
     url.click_count += 1
     event = AnalyticsEvent(
         short_code=short_code,
