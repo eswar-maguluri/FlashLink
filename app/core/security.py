@@ -23,8 +23,6 @@ def verify_password(
         plain_password,
         hashed_password
     )
-print("SECRET_KEY =", SECRET_KEY)
-print("ALGORITHM =", ALGORITHM)
 
 def create_access_token(data: dict):
     to_encode = data.copy()
