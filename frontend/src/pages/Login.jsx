@@ -48,7 +48,6 @@ function Login() {
     <div className="auth-page">
       <div className="auth-card">
         <h1>FlashLink</h1>
-        <h2>Welcome Back</h2>
         <input
           type="email"
           placeholder="Email Address"
