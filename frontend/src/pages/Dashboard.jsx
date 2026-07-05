@@ -12,7 +12,7 @@ function Dashboard() {
         localStorage.getItem("token");
       const response =
         await axios.get(
-          "http://localhost:8000/my-urls",
+          "https://flashlink-api.onrender.com/my-urls",
           {
             headers: {
               Authorization:
@@ -35,7 +35,7 @@ function Dashboard() {
         localStorage.getItem("token");
       const response =
         await axios.post(
-          "http://localhost:8000/shorten",
+          "https://flashlink-api.onrender.com/shorten",
           {
             url
           },
@@ -72,7 +72,7 @@ function Dashboard() {
       const token =
         localStorage.getItem("token");
       await axios.delete(
-        `http://localhost:8000/url/${urlId}`,
+        `https://flashlink-api.onrender.com/url/${urlId}`,
         {
           headers: {
             Authorization:
@@ -216,7 +216,7 @@ function Dashboard() {
                   <button
                       onClick={() =>
                           copyUrl(
-                              `http://localhost:8000/r/${item.short_code}`
+                              `https://flashlink-api.onrender.com/r/${item.short_code}`
                           )
                   }
                   >

@@ -10,7 +10,7 @@ function Register() {
   const registerUser = async () => {
     try {
       await axios.post(
-        "http://localhost:8000/auth/register",
+        "https://flashlink-api.onrender.com/auth/register",
         {
           email,
           password
@@ -18,7 +18,7 @@ function Register() {
       );
       const loginResponse =
         await axios.post(
-          "http://localhost:8000/auth/login",
+          "https://flashlink-api.onrender.com/auth/login",
           {
             email,
             password

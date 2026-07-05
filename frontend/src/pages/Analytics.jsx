@@ -10,7 +10,7 @@ function Analytics() {
   const fetchAnalytics = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:8000/analytics/${shortCode}`
+        `https://flashlink-api.onrender.com/analytics/${shortCode}`
       );
       setAnalytics(response.data);
     } catch (error) {

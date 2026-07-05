@@ -10,7 +10,7 @@ function Login() {
   const loginUser = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:8000/auth/login",
+        "https://flashlink-api.onrender.com/auth/login",
         {
           email,
           password
