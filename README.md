@@ -386,8 +386,17 @@ FlashLink integrates Prometheus and Grafana to monitor:
 
 **Eswar Maguluri**
 
-B.Sc Computer Science
-
-Full Stack Developer
-
 Python • FastAPI • React • PostgreSQL • Redis • Kafka • Docker • Prometheus • Grafana
+
+
+<img width="1920" height="934" alt="Login Page" src="https://github.com/user-attachments/assets/4844aded-de33-4811-b1ff-431072e90aec" />
+
+<img width="1920" height="935" alt="Registration Page" src="https://github.com/user-attachments/assets/2df48723-08ed-4f78-a9a1-ff6d4fd7ed3b" />
+
+<img width="1910" height="993" alt="Dashboard" src="https://github.com/user-attachments/assets/6f022591-8be5-4162-9aec-d55269434ceb" />
+
+<img width="1907" height="581" alt="Analytics Dashboard" src="https://github.com/user-attachments/assets/9e2690b5-1d80-476a-9c87-8d9e14adb9dd" />
+
+<img width="1912" height="923" alt="Grafana Dashboard" src="https://github.com/user-attachments/assets/957d4a38-d0be-4f5a-b01e-7594efc9660e" />
+
+<img width="1894" height="929" alt="Swagger API Docs" src="https://github.com/user-attachments/assets/e210f6cb-88ad-4b97-b1f6-f5a7dc9c6ac5" />
