@@ -24,6 +24,21 @@ The project includes:
 
 ---
 
+## Live Demo
+
+### Frontend
+
+https://flash-link-26.vercel.app
+
+### Backend API
+
+https://flashlink-api.onrender.com
+
+### API Documentation
+
+https://flashlink-api.onrender.com/docs
+
+
 ## Features
 
 ### Authentication
