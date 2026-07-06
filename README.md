@@ -1,100 +1,222 @@
 # FlashLink
 
-FlashLink is a backend-focused URL shortening platform built with FastAPI, PostgreSQL, and Redis. The project is designed to explore scalable backend architecture, efficient URL management, distributed identifier generation, caching strategies, and secure API development.
+FlashLink is a distributed URL shortening platform built using FastAPI, React, PostgreSQL, Redis, Kafka, Docker, Prometheus, and Grafana.
 
-The objective of FlashLink is not only to provide URL shortening functionality but also to serve as a practical implementation of modern backend engineering concepts and system design principles.
+The platform enables users to generate short URLs, manage links, track analytics, and monitor system activity through an integrated dashboard.
 
 ---
 
 ## Overview
 
-FlashLink enables users to generate compact, shareable URLs while maintaining a clean and extensible architecture for future enhancements such as analytics, caching, monitoring, and distributed processing.
+FlashLink provides a secure and scalable platform for URL shortening while demonstrating modern backend engineering concepts such as distributed ID generation, caching, event-driven architecture, monitoring, and cloud deployment.
 
-The project focuses on:
+The project includes:
 
-* URL shortening and redirection
-* Authentication and security
-* Distributed ID generation
-* Database optimization
-* High-performance caching
-* Scalable backend architecture
+- User Authentication using JWT
+- URL Shortening with Base62 Encoding
+- Snowflake Distributed ID Generation
+- URL Analytics and Click Tracking
+- Redis Caching Layer
+- Kafka Event Streaming Architecture
+- Prometheus Monitoring
+- Grafana Dashboards
+- Dockerized Deployment
+
+---
+
+## Features
+
+### Authentication
+
+- User Registration
+- User Login
+- JWT Authentication
+- Protected API Routes
+
+### URL Management
+
+- Create Short URLs
+- View User URLs
+- Delete URLs
+- Personalized Dashboard
+
+### Analytics
+
+- Total Click Tracking
+- Unique Visitor Tracking
+- Recent Click Activity
+- Analytics Dashboard
+
+### Performance & Scalability
+
+- Snowflake ID Generation
+- Base62 URL Encoding
+- Redis Caching Support
+- Rate Limiting Support
+
+### Monitoring
+
+- Prometheus Metrics
+- Grafana Dashboards
+- API Monitoring
 
 ---
 
 ## Technology Stack
 
+### Frontend
+
+- React
+- React Router
+- Axios
+- CSS
+
 ### Backend
 
-* Python
-* FastAPI
-* Uvicorn
+- FastAPI
+- SQLAlchemy
+- Pydantic
+- Uvicorn
 
 ### Database
 
-* PostgreSQL
+- PostgreSQL (Neon)
 
-### Cache
+### Cache Layer
 
-* Redis
+- Redis
 
-### Authentication
+### Event Streaming
 
-* JWT Authentication
-* Password Hashing
+- Apache Kafka
 
-### Development Tools
+### Monitoring
 
-* Git
-* GitHub
+- Prometheus
+- Grafana
+
+### DevOps
+
+- Docker
+- Docker Compose
+- GitHub Actions
+
+### Deployment
+
+- Vercel
+- Render
+- Neon PostgreSQL
 
 ---
 
-## Architecture
-
-FlashLink follows a modular architecture that separates application concerns into dedicated layers for APIs, business logic, database access, caching, security, and schemas.
+## System Architecture
 
 ```text
-FlashLink
-│
-├── app
-│   ├── api
-│   ├── cache
-│   ├── core
-│   ├── db
-│   ├── dependencies
-│   ├── middleware
-│   └── schemas
-│
-├── main.py
-├── requirements.txt
-└── README.md
-```
+                            ┌─────────────┐
+                            │    Users    │
+                            └──────┬──────┘
+                                   │
+                                   ▼
+                     ┌────────────────────────┐
+                     │    React Frontend      │
+                     │       (Vercel)         │
+                     └──────────┬─────────────┘
+                                │
+                                ▼
+                     ┌────────────────────────┐
+                     │     FastAPI Backend    │
+                     │       (Render)         │
+                     └──────┬─────┬─────┬─────┘
+                            │     │     │
+             ┌──────────────┘     │     └──────────────┐
+             ▼                    ▼                    ▼
 
-This structure improves maintainability, scalability, and ease of development.
+    ┌────────────────┐  ┌────────────────┐  ┌────────────────┐
+    │ PostgreSQL     │  │ Redis Cache    │  │ Kafka Producer │
+    │    (Neon)      │  │                │  │                │
+    └────────────────┘  └────────────────┘  └───────┬────────┘
+                                                     │
+                                                     ▼
+
+                                           ┌────────────────┐
+                                           │ Kafka Consumer │
+                                           └───────┬────────┘
+                                                   │
+                                                   ▼
+
+                                         ┌──────────────────┐
+                                         │ Analytics Events │
+                                         └──────────────────┘
+
+                                ▼
+                     ┌────────────────────────┐
+                     │      Prometheus        │
+                     └──────────┬─────────────┘
+                                │
+                                ▼
+                     ┌────────────────────────┐
+                     │        Grafana         │
+                     └────────────────────────┘
+```
 
 ---
 
-## Core Components
+## URL Creation Workflow
 
-### URL Shortening
+```text
+User
+ │
+ ▼
+Submit Original URL
+ │
+ ▼
+FastAPI Backend
+ │
+ ▼
+Snowflake ID Generator
+ │
+ ▼
+Base62 Encoding
+ │
+ ▼
+Generate Short Code
+ │
+ ▼
+Store in PostgreSQL
+ │
+ ▼
+Return Short URL
+```
 
-Converts long URLs into compact and shareable links using Base62 encoding.
+---
 
-### Snowflake ID Generator
+## URL Redirection Workflow
 
-Generates unique, time-sortable identifiers suitable for scalable applications and distributed environments.
+```text
+User Clicks Short URL
+          │
+          ▼
+      FastAPI API
+          │
+          ▼
+    Redis Cache Check
+      │          │
+      │          │
+      ▼          ▼
 
-### Authentication System
-
-Provides secure user authentication using JWT-based access tokens and password hashing.
-
-### Redis Integration
-
-Supports high-speed caching to improve performance and reduce database load.
-
-### PostgreSQL Storage
-
-Stores user data, URLs, and application metadata using a relational database system.
+ Cache Hit    Cache Miss
+      │          │
+      │          ▼
+      │    PostgreSQL Lookup
+      │          │
+      └────► Cache Result
+                 │
+                 ▼
+          Track Analytics
+                 │
+                 ▼
+          Redirect User
+```
 
 ---
 
@@ -102,101 +224,146 @@ Stores user data, URLs, and application metadata using a relational database sys
 
 ### Authentication
 
-```http
-POST /auth/register
-POST /auth/login
-```
+| Method | Endpoint |
+|----------|----------|
+| POST | /auth/register |
+| POST | /auth/login |
 
-### URL Services
+### URL Management
 
-```http
-POST /shorten
-GET /{short_id}
-GET /analytics/{short_id}
-```
+| Method | Endpoint |
+|----------|----------|
+| POST | /shorten |
+| GET | /my-urls |
+| DELETE | /url/{id} |
+| GET | /r/{short_code} |
 
-Endpoint availability may vary depending on the current development stage.
+### Analytics
+
+| Method | Endpoint |
+|----------|----------|
+| GET | /analytics/{short_code} |
+
+### Monitoring
+
+| Method | Endpoint |
+|----------|----------|
+| GET | /metrics |
 
 ---
 
-## Getting Started
-
-### Clone the Repository
-
-```bash
-git clone https://github.com/eswar-maguluri/FlashLink.git
-cd FlashLink
-```
-
-### Create a Virtual Environment
-
-```bash
-python -m venv .venv
-```
-
-### Activate the Environment
-
-Windows:
-
-```bash
-.venv\Scripts\activate
-```
-
-Linux/macOS:
-
-```bash
-source .venv/bin/activate
-```
-
-### Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### Configure Environment Variables
-
-Create a `.env` file and configure the required settings:
-
-```env
-DATABASE_URL=your_database_url
-REDIS_URL=your_redis_url
-SECRET_KEY=your_secret_key
-```
-
-### Run the Application
-
-```bash
-uvicorn main:app --reload
-```
-
-### API Documentation
+## Project Structure
 
 ```text
-http://localhost:8000/docs
+FlashLink
+│
+├── .github
+│
+├── app
+│   ├── api
+│   ├── cache
+│   ├── core
+│   ├── database
+│   ├── dependencies
+│   ├── kafka
+│   ├── middleware
+│   ├── monitoring
+│   ├── models
+│   └── schemas
+│
+├── dashboard
+│
+├── docker
+│
+├── frontend
+│
+├── monitoring
+│
+├── scripts
+│
+├── tests
+│
+├── Dockerfile
+├── docker-compose.yml
+├── nginx.conf
+├── requirements.txt
+└── README.md
 ```
 
 ---
 
-## Development Status
+## Security Features
 
-FlashLink is currently under active development. The project foundation, authentication utilities, Snowflake ID generation, Redis integration, and database configuration have been established. Additional functionality including complete URL management, analytics, caching optimizations, and deployment tooling will be added as development progresses.
+- JWT Authentication
+- Password Hashing with BCrypt
+- Protected Routes
+- User-Specific URL Ownership
+- Input Validation with Pydantic
 
 ---
 
-## Learning Objectives
+## Monitoring & Observability
 
-This project is being developed to gain hands-on experience with:
+FlashLink integrates Prometheus and Grafana to monitor:
 
-* Backend Development
-* REST API Design
-* FastAPI
-* PostgreSQL
-* Redis
-* Authentication & Security
-* System Design
-* Scalable Architecture
-* Performance Optimization
+- URLs Created
+- Total Redirects
+- Cache Hits
+- Cache Misses
+- API Health
+- System Metrics
+
+---
+
+## Deployment
+
+### Frontend
+
+- Vercel
+
+### Backend
+
+- Render
+
+### Database
+
+- Neon PostgreSQL
+
+### Monitoring
+
+- Prometheus
+- Grafana
+
+---
+
+## Future Enhancements
+
+- Custom Short URLs
+- QR Code Generation
+- URL Expiration
+- Device Analytics
+- Geo Analytics
+- Real-Time Event Processing
+- Advanced Kafka Streaming
+- Click Fraud Detection
+- Team Workspaces
+
+---
+
+## Key Concepts Demonstrated
+
+- Distributed Systems
+- URL Shortening Algorithms
+- Snowflake ID Generation
+- Base62 Encoding
+- REST API Development
+- Authentication & Authorization
+- PostgreSQL Database Design
+- Redis Caching
+- Kafka Event Streaming
+- Monitoring & Observability
+- Docker Containerization
+- Cloud Deployment
 
 ---
 
@@ -204,4 +371,8 @@ This project is being developed to gain hands-on experience with:
 
 **Eswar Maguluri**
 
-GitHub: https://github.com/eswar-maguluri
+B.Sc Computer Science
+
+Full Stack Developer
+
+Python • FastAPI • React • PostgreSQL • Redis • Kafka • Docker • Prometheus • Grafana
