@@ -119,35 +119,35 @@ function Analytics() {
           <div className="grafana-grid">
               <iframe
                 title="URLs Created"
-                src="http://localhost:3000/d-solo/adgmq8l/urls-created?orgId=1&panelId=1&theme=dark"
+                src="https://flashlink-grafana.onrender.com/d-solo/adhwfcq/new-dashboard?orgId=1&panelId=panel-1&theme=dark"
               />
               <iframe
                 title="Registered Users"
-                src="http://localhost:3000/d-solo/adgmq8l/urls-created?orgId=1&panelId=3&theme=dark"
+                src="https://flashlink-grafana.onrender.com/d-solo/adhwfcq/flashlink-performance-dashboard?orgId=1&from=1783851017434&to=1783872617434&timezone=browser&panelId=panel-2&theme=dark"
               />
               <iframe
                 title="Total Redirects"
-                src="http://localhost:3000/d-solo/adgmq8l/urls-created?orgId=1&panelId=2&theme=dark"
+                src="https://flashlink-grafana.onrender.com/d-solo/adhwfcq/flashlink-performance-dashboard?orgId=1&from=1783851017434&to=1783872617434&timezone=browser&panelId=panel-3&theme=dark"
               />
               <iframe
                 title="API CPU Usage"
-                src="http://localhost:3000/d-solo/adgmq8l/urls-created?orgId=1&panelId=6&theme=dark"
+                src="https://flashlink-grafana.onrender.com/d-solo/adhwfcq/flashlink-performance-dashboard?orgId=1&from=1783851017434&to=1783872617434&timezone=browser&panelId=panel-4&theme=dark"
               />
               <iframe
                 title="Memory Usage"
-                src="http://localhost:3000/d-solo/adgmq8l/urls-created?orgId=1&panelId=7&theme=dark"
+                src="https://flashlink-grafana.onrender.com/d-solo/adhwfcq/flashlink-performance-dashboard?orgId=1&from=1783851017434&to=1783872617434&timezone=browser&panelId=panel-5&theme=dark"
               />
               <iframe
                 title="API Uptime"
-                src="http://localhost:3000/d-solo/adgmq8l/urls-created?orgId=1&panelId=8&theme=dark"
+                src="https://flashlink-grafana.onrender.com/d-solo/adhwfcq/flashlink-performance-dashboard?orgId=1&from=1783851017434&to=1783872617434&timezone=browser&panelId=panel-6&theme=dark"
               />
               <iframe
                 title="Redirect Traffic"
-                src="http://localhost:3000/d-solo/adgmq8l/urls-created?orgId=1&panelId=5&theme=dark"
+                src="https://flashlink-grafana.onrender.com/d-solo/adhwfcq/flashlink-performance-dashboard?orgId=1&from=1783851017434&to=1783872617434&timezone=browser&panelId=panel-7&theme=dark"
               />
               <iframe
                  title="URL Creation Rate"
-                 src="http://localhost:3000/d-solo/adgmq8l/urls-created?orgId=1&panelId=4&theme=dark"
+                 src="https://flashlink-grafana.onrender.com/d-solo/adhwfcq/flashlink-performance-dashboard?orgId=1&from=1783851017434&to=1783872617434&timezone=browser&panelId=panel-8&theme=dark"
               />
           </div>
       </div>
