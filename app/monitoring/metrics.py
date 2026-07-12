@@ -1,26 +1,26 @@
 from prometheus_client import Counter
 
-users_registered = Counter(
+user_registered_counter = Counter(
     "flashlink_users_registered_total",
     "Total Registered Users"
 )
-urls_created = Counter(
+url_created_counter = Counter(
     "flashlink_urls_created_total",
     "Total URLs Created"
 )
-redirects = Counter(
+redirect_counter = Counter(
     "flashlink_redirects_total",
     "Total URL Redirects"
 )
-cache_hits = Counter(
+cache_hit_counter = Counter(
     "flashlink_cache_hits_total",
     "Redis Cache Hits"
 )
-cache_misses = Counter(
+cache_miss_counter = Counter(
     "flashlink_cache_misses_total",
     "Redis Cache Misses"
 )
-analytics_events = Counter(
+analytics_event_counter = Counter(
     "flashlink_analytics_events_total",
     "Analytics Events Processed"
 )
