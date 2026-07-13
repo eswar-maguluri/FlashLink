@@ -13,7 +13,8 @@ import {
   Pie,
   Cell,
   BarChart,
-  Bar
+  Bar,
+  Legend
 } from "recharts";
 
 function Analytics() {
@@ -26,8 +27,11 @@ function Analytics() {
     "#22c55e",
     "#f59e0b",
     "#ef4444",
-    "#8b5cf6"
+    "#8b5cf6",
   ];
+  useEffect(() => {
+    fetchAnalytics();
+  }, [shortCode]);
   const fetchAnalytics = async () => {
     try {
       const response = await axios.get(
@@ -45,9 +49,6 @@ function Analytics() {
       setLoading(false);
     }
   };
-  useEffect(() => {
-    fetchAnalytics();
-  }, [shortCode]);
   if (loading) {
     return (
       <div className="dashboard">
@@ -80,42 +81,38 @@ function Analytics() {
       <section className="hero">
         <h1>Analytics Dashboard</h1>
         <p>
-          Short Code:{" "}
-          {analytics.short_code}
+          Short Code:
+          <strong>
+            {" "}
+            {analytics.short_code}
+          </strong>
         </p>
       </section>
       {/* KPI CARDS */}
       <div className="stats">
         <div className="card">
           <h3>Total Clicks</h3>
-          <p>
-            {analytics.total_clicks}
-          </p>
+          <p>{analytics.total_clicks}</p>
         </div>
         <div className="card">
           <h3>Unique Visitors</h3>
-          <p>
-            {analytics.unique_visitors}
-          </p>
+          <p>{analytics.unique_visitors}</p>
         </div>
         <div className="card">
           <h3>Recent Events</h3>
           <p>
-            {
-              analytics.recent_clicks
-                .length
-            }
+            {analytics.recent_clicks.length}
           </p>
         </div>
       </div>
-      {/* CHARTS ROW */}
+      {/* CHARTS */}
       <div
         style={{
           display: "grid",
           gridTemplateColumns:
             "repeat(auto-fit,minmax(450px,1fr))",
           gap: "25px",
-          marginTop: "30px"
+          marginTop: "30px",
         }}
       >
         {/* LINE CHART */}
@@ -123,17 +120,18 @@ function Analytics() {
           <h2>Click Trend</h2>
           <ResponsiveContainer
             width="100%"
-            height={300}
+            height={320}
           >
             <LineChart
-              data={
-                analytics.chart_data
-              }
+              data={analytics.chart_data}
             >
-              <CartesianGrid strokeDasharray="3 3" />
+              <CartesianGrid
+                strokeDasharray="3 3"
+              />
               <XAxis dataKey="date" />
               <YAxis />
               <Tooltip />
+              <Legend />
               <Line
                 type="monotone"
                 dataKey="clicks"
@@ -150,7 +148,7 @@ function Analytics() {
           </h2>
           <ResponsiveContainer
             width="100%"
-            height={300}
+            height={320}
           >
             <PieChart>
               <Pie
@@ -159,10 +157,10 @@ function Analytics() {
                 }
                 dataKey="value"
                 nameKey="name"
-                outerRadius={100}
+                outerRadius={110}
                 label
               >
-                {analytics.browser_chart?.map(
+                {analytics.browser_chart.map(
                   (
                     entry,
                     index
@@ -180,6 +178,7 @@ function Analytics() {
                 )}
               </Pie>
               <Tooltip />
+              <Legend />
             </PieChart>
           </ResponsiveContainer>
         </div>
@@ -188,23 +187,24 @@ function Analytics() {
       <div
         className="table-card"
         style={{
-          marginTop: "30px"
+          marginTop: "30px",
         }}
       >
         <h2>Traffic Overview</h2>
         <ResponsiveContainer
           width="100%"
-          height={320}
+          height={350}
         >
           <BarChart
-            data={
-              analytics.chart_data
-            }
+            data={analytics.chart_data}
           >
-            <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid
+              strokeDasharray="3 3"
+            />
             <XAxis dataKey="date" />
             <YAxis />
             <Tooltip />
+            <Legend />
             <Bar
               dataKey="clicks"
               fill="#22c55e"
@@ -212,11 +212,11 @@ function Analytics() {
           </BarChart>
         </ResponsiveContainer>
       </div>
-      {/* RECENT CLICKS */}
+      {/* RECENT ACTIVITY */}
       <div
         className="table-card"
         style={{
-          marginTop: "30px"
+          marginTop: "30px",
         }}
       >
         <h2>
@@ -231,8 +231,8 @@ function Analytics() {
             </tr>
           </thead>
           <tbody>
-            {analytics.recent_clicks
-              .length > 0 ? (
+            {analytics.recent_clicks.length >
+            0 ? (
               analytics.recent_clicks.map(
                 (
                   click,
