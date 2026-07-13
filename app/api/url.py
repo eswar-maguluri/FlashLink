@@ -11,6 +11,7 @@ from app.models import URL
 from app.models import AnalyticsEvent
 from app.core.snowflake import SnowflakeGenerator
 from app.core.base62 import encode
+from collections import defaultdict
 from app.dependencies.auth import get_current_user
 #from app.cache.redis_client import redis_client
 #from app.middleware.redis_rate_limiter import RedisRateLimiter
@@ -137,6 +138,16 @@ def get_analytics(
         )
         .scalar()
     )
+    all_clicks = (
+        db.query(AnalyticsEvent)
+        .filter(
+            AnalyticsEvent.short_code == short_code
+        )
+        .order_by(
+            AnalyticsEvent.created_at.asc()
+        )
+        .all()
+    )
     recent_clicks = (
         db.query(AnalyticsEvent)
         .filter(
@@ -148,6 +159,37 @@ def get_analytics(
         .limit(10)
         .all()
     )
+    clicks_by_day = defaultdict(int)
+    for click in all_clicks:
+        day = click.created_at.strftime("%d %b")
+        clicks_by_day[day] += 1
+    chart_data = [
+        {
+            "date": date,
+            "clicks": count
+        }
+        for date, count in clicks_by_day.items()
+    ]
+    browser_data = defaultdict(int)
+    for click in all_clicks:
+        agent = click.user_agent.lower()
+        if "chrome" in agent:
+            browser_data["Chrome"] += 1
+        elif "firefox" in agent:
+            browser_data["Firefox"] += 1
+        elif "edge" in agent:
+            browser_data["Edge"] += 1
+        elif "safari" in agent:
+            browser_data["Safari"] += 1
+        else:
+            browser_data["Other"] += 1
+    browser_chart = [
+        {
+            "name": browser,
+            "value": count
+        }
+        for browser, count in browser_data.items()
+    ]
     return {
         "short_code": short_code,
         "total_clicks": total_clicks,
@@ -159,7 +201,9 @@ def get_analytics(
                 "timestamp": click.created_at
             }
             for click in recent_clicks
-        ]
+        ],
+        "chart_data": chart_data,
+        "browser_chart": browser_chart
     }
 @router.get("/r/{short_code}")
 def redirect_url(

@@ -113,44 +113,6 @@ function Analytics() {
           </tbody>
         </table>
       </div>
-      {/* Grafana Section */}
-      <div className="table-card">
-          <h2>System Monitoring (Grafana)</h2>
-          <div className="grafana-grid">
-              <iframe
-                title="URLs Created"
-                src="https://flashlink-grafana.onrender.com/d-solo/adhwfcq/new-dashboard?orgId=1&panelId=panel-1&theme=dark"
-              />
-              <iframe
-                title="Registered Users"
-                src="https://flashlink-grafana.onrender.com/d-solo/adhwfcq/flashlink-performance-dashboard?orgId=1&from=1783851017434&to=1783872617434&timezone=browser&panelId=panel-2&theme=dark"
-              />
-              <iframe
-                title="Total Redirects"
-                src="https://flashlink-grafana.onrender.com/d-solo/adhwfcq/flashlink-performance-dashboard?orgId=1&from=1783851017434&to=1783872617434&timezone=browser&panelId=panel-3&theme=dark"
-              />
-              <iframe
-                title="API CPU Usage"
-                src="https://flashlink-grafana.onrender.com/d-solo/adhwfcq/flashlink-performance-dashboard?orgId=1&from=1783851017434&to=1783872617434&timezone=browser&panelId=panel-4&theme=dark"
-              />
-              <iframe
-                title="Memory Usage"
-                src="https://flashlink-grafana.onrender.com/d-solo/adhwfcq/flashlink-performance-dashboard?orgId=1&from=1783851017434&to=1783872617434&timezone=browser&panelId=panel-5&theme=dark"
-              />
-              <iframe
-                title="API Uptime"
-                src="https://flashlink-grafana.onrender.com/d-solo/adhwfcq/flashlink-performance-dashboard?orgId=1&from=1783851017434&to=1783872617434&timezone=browser&panelId=panel-6&theme=dark"
-              />
-              <iframe
-                title="Redirect Traffic"
-                src="https://flashlink-grafana.onrender.com/d-solo/adhwfcq/flashlink-performance-dashboard?orgId=1&from=1783851017434&to=1783872617434&timezone=browser&panelId=panel-7&theme=dark"
-              />
-              <iframe
-                 title="URL Creation Rate"
-                 src="https://flashlink-grafana.onrender.com/d-solo/adhwfcq/flashlink-performance-dashboard?orgId=1&from=1783851017434&to=1783872617434&timezone=browser&panelId=panel-8&theme=dark"
-              />
-          </div>
-      </div>
     </div>
   );
 }

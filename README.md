@@ -1,6 +1,10 @@
 # FlashLink
 
+<<<<<<< HEAD
 FlashLink is a distributed URL shortening platform built using FastAPI, React, PostgreSQL, Redis, Kafka, Docker, Prometheus.
+=======
+FlashLink is a distributed URL shortening platform built using FastAPI, React, PostgreSQL, Redis, Kafka, Docker, and Prometheus.
+>>>>>>> 40593f7 (Added Recharts analytics API)
 
 The platform enables users to generate short URLs, manage links, track analytics, and monitor system activity through an integrated dashboard.
 
@@ -296,7 +300,7 @@ FlashLink
 
 ## Monitoring & Observability
 
-FlashLink integrates Prometheus and Grafana to monitor:
+FlashLink integrates Prometheus to monitor:
 
 - URLs Created
 - Total Redirects
@@ -373,4 +377,8 @@ B.Sc Computer Science
 
 Full Stack Developer
 
+<<<<<<< HEAD
 Python • FastAPI • React • PostgreSQL • Redis • Kafka • Docker • Prometheus
+=======
+Python • FastAPI • React • PostgreSQL • Redis • Kafka • Docker • Prometheus
+>>>>>>> 40593f7 (Added Recharts analytics API)

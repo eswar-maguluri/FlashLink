@@ -8,7 +8,6 @@ frontend/node_modules/
 frontend/dist/
 .idea/
 .vscode/
-grafana_data/
 prometheus_data/
 .DS_Store
 Thumbs.db
