@@ -358,6 +358,13 @@ FlashLink integrates Prometheus and Grafana to monitor:
 
 ---
 
+<img width="1920" height="934" alt="Login Page" src="https://github.com/user-attachments/assets/84a9ee53-918e-49a9-92d8-7c738742cde0" />
+<img width="1920" height="935" alt="Registration Page" src="https://github.com/user-attachments/assets/9ae5c3e3-7fca-4295-9189-25f45a37c3de" />
+<img width="1910" height="993" alt="Dashboard" src="https://github.com/user-attachments/assets/1e1a5e50-3671-49d3-ac55-41ed872a1ba3" />
+<img width="1907" height="581" alt="Analytics Dashboard" src="https://github.com/user-attachments/assets/106a0497-e44a-4efd-b1c5-6714c6dc92c0" />
+<img width="1894" height="929" alt="Swagger API Docs" src="https://github.com/user-attachments/assets/7d81a3a4-89ee-4fd1-b497-ed9f6c29ff8b" />
+
+
 ## Author
 
 **Eswar Maguluri**
