@@ -321,6 +321,7 @@ FlashLink integrates Prometheus to monitor:
 
 ### Backend Setup
 
+```bash
 # Clone the repository
 git clone https://github.com/eswar-maguluri/FlashLink.git
 cd FlashLink
@@ -341,17 +342,21 @@ cp .env.example .env
 
 # Start the FastAPI server
 uvicorn app.main:app --reload
+```
 
 ### Frontend Setup
 
+```bash
 cd frontend
 npm install
 npm run dev
-
+```
 
 ### Running with Docker Compose
 
+```bash
 docker-compose up --build
+```
 
 This spins up the backend, frontend, PostgreSQL, Redis, Kafka, and Prometheus services together.
 
