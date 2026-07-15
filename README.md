@@ -1,12 +1,10 @@
 # FlashLink
 
-<<<<<<< HEAD
-FlashLink is a distributed URL shortening platform built using FastAPI, React, PostgreSQL, Redis, Kafka, Docker, Prometheus.
-=======
 FlashLink is a distributed URL shortening platform built using FastAPI, React, PostgreSQL, Redis, Kafka, Docker, and Prometheus.
->>>>>>> 40593f7 (Added Recharts analytics API)
 
 The platform enables users to generate short URLs, manage links, track analytics, and monitor system activity through an integrated dashboard.
+
+**Live Demo:** https://flash-link-26.vercel.app/
 
 ---
 
@@ -48,7 +46,7 @@ The project includes:
 - Total Click Tracking
 - Unique Visitor Tracking
 - Recent Click Activity
-- Analytics Dashboard
+- Analytics Dashboard (built with Recharts)
 
 ### Performance & Scalability
 
@@ -70,6 +68,7 @@ The project includes:
 
 - React
 - React Router
+- Recharts
 - Axios
 - CSS
 
@@ -311,6 +310,53 @@ FlashLink integrates Prometheus to monitor:
 
 ---
 
+## Getting Started
+
+### Prerequisites
+
+- Python 3.10+
+- Node.js 18+
+- Docker & Docker Compose
+- PostgreSQL (or a Neon account)
+
+### Backend Setup
+
+# Clone the repository
+git clone https://github.com/eswar-maguluri/FlashLink.git
+cd FlashLink
+
+# Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate   # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your DATABASE_URL, REDIS_URL, KAFKA_BROKER, JWT_SECRET, etc.
+
+# Run database migrations (if applicable)
+# alembic upgrade head
+
+# Start the FastAPI server
+uvicorn app.main:app --reload
+
+### Frontend Setup
+
+cd frontend
+npm install
+npm run dev
+
+
+### Running with Docker Compose
+
+docker-compose up --build
+
+This spins up the backend, frontend, PostgreSQL, Redis, Kafka, and Prometheus services together.
+
+---
+
 ## Deployment
 
 ### Frontend
@@ -368,7 +414,6 @@ FlashLink integrates Prometheus to monitor:
 <img width="1907" height="581" alt="Analytics Dashboard" src="https://github.com/user-attachments/assets/106a0497-e44a-4efd-b1c5-6714c6dc92c0" />
 <img width="1894" height="929" alt="Swagger API Docs" src="https://github.com/user-attachments/assets/7d81a3a4-89ee-4fd1-b497-ed9f6c29ff8b" />
 
-
 ## Author
 
 **Eswar Maguluri**
@@ -377,8 +422,4 @@ B.Sc Computer Science
 
 Full Stack Developer
 
-<<<<<<< HEAD
 Python • FastAPI • React • PostgreSQL • Redis • Kafka • Docker • Prometheus
-=======
-Python • FastAPI • React • PostgreSQL • Redis • Kafka • Docker • Prometheus
->>>>>>> 40593f7 (Added Recharts analytics API)
