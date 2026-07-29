@@ -35,7 +35,7 @@ function Analytics() {
   const fetchAnalytics = async () => {
     try {
       const response = await axios.get(
-        `https://flashlink-api.onrender.com/analytics/${shortCode}`
+        `https://flashlink-eswar-bch2bagaa6azcnc2.centralindia-01.azurewebsites.net/analytics/${shortCode}`
       );
       setAnalytics(response.data);
     } catch (error) {

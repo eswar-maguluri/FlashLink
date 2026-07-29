@@ -12,7 +12,7 @@ function Dashboard() {
         localStorage.getItem("token");
       const response =
         await axios.get(
-          "https://flashlink-api.onrender.com/my-urls",
+          "https://flashlink-eswar-bch2bagaa6azcnc2.centralindia-01.azurewebsites.net/my-urls",
           {
             headers: {
               Authorization:
@@ -35,7 +35,7 @@ function Dashboard() {
         localStorage.getItem("token");
       const response =
         await axios.post(
-          "https://flashlink-api.onrender.com/shorten",
+          "https://flashlink-eswar-bch2bagaa6azcnc2.centralindia-01.azurewebsites.net/shorten",
           {
             url
           },
@@ -72,7 +72,7 @@ function Dashboard() {
       const token =
         localStorage.getItem("token");
       await axios.delete(
-        `https://flashlink-api.onrender.com/url/${urlId}`,
+        `https://flashlink-eswar-bch2bagaa6azcnc2.centralindia-01.azurewebsites.net/url/${urlId}`,
         {
           headers: {
             Authorization:
@@ -216,7 +216,7 @@ function Dashboard() {
                   <button
                       onClick={() =>
                           copyUrl(
-                              `https://flashlink-api.onrender.com/r/${item.short_code}`
+                              `https://flashlink-eswar-bch2bagaa6azcnc2.centralindia-01.azurewebsites.net/r/${item.short_code}`
                           )
                   }
                   >

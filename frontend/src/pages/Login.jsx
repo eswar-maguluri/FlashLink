@@ -15,7 +15,7 @@ function Login() {
     }
     try {
       const response = await axios.post(
-        "https://flashlink-api.onrender.com/auth/login",
+        "https://flashlink-eswar-bch2bagaa6azcnc2.centralindia-01.azurewebsites.net/auth/login",
         {
           email,
           password,
