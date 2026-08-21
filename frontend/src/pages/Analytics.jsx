@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import {
@@ -14,261 +14,651 @@ import {
   Cell,
   BarChart,
   Bar,
-  Legend
+  Legend,
 } from "recharts";
+
+const API_URL =
+  "https://flashlink-eswar-bch2bagaa6azcnc2.centralindia-01.azurewebsites.net";
+
+const COLORS = [
+  "#3b82f6",
+  "#22c55e",
+  "#f59e0b",
+  "#ef4444",
+  "#8b5cf6",
+];
 
 function Analytics() {
   const { shortCode } = useParams();
+
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const COLORS = [
-    "#3b82f6",
-    "#22c55e",
-    "#f59e0b",
-    "#ef4444",
-    "#8b5cf6",
-  ];
+
   useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const response = await axios.get(
+          `${API_URL}/analytics/${shortCode}`
+        );
+
+        setAnalytics(response.data);
+      } catch (error) {
+        console.error(error);
+
+        if (error.response?.data?.detail) {
+          setError(error.response.data.detail);
+        } else {
+          setError("Unable to load analytics");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchAnalytics();
   }, [shortCode]);
-  const fetchAnalytics = async () => {
-    try {
-      const response = await axios.get(
-        `https://flashlink-eswar-bch2bagaa6azcnc2.centralindia-01.azurewebsites.net/analytics/${shortCode}`
-      );
-      setAnalytics(response.data);
-    } catch (error) {
-      console.log(error);
-      if (error.response) {
-        setError(error.response.data.detail);
-      } else {
-        setError("Failed to load analytics");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
+
   if (loading) {
     return (
-      <div className="dashboard">
-        <h1>Loading Analytics...</h1>
+      <div className="analytics-page-state">
+        <div className="loading-spinner"></div>
+        <h2>Loading analytics</h2>
+        <p>Fetching your link performance data...</p>
       </div>
     );
   }
+
   if (error) {
     return (
-      <div className="dashboard">
-        <h1>{error}</h1>
-      </div>
-    );
-  }
-  return (
-    <div className="dashboard">
-      {/* NAVBAR */}
-      <nav className="navbar">
-        <h2>FlashLink</h2>
+      <div className="analytics-page-state">
+        <div className="error-icon">!</div>
+        <h2>Analytics unavailable</h2>
+        <p>{error}</p>
+
         <button
-          className="logout-btn"
+          className="primary-button state-button"
           onClick={() =>
             (window.location.href = "/dashboard")
           }
         >
-          Dashboard
+          Back to Dashboard
         </button>
-      </nav>
-      {/* HERO */}
-      <section className="hero">
-        <h1>Analytics Dashboard</h1>
-        <p>
-          Short Code:
-          <strong>
-            {" "}
-            {analytics.short_code}
-          </strong>
-        </p>
-      </section>
-      {/* KPI CARDS */}
-      <div className="stats">
-        <div className="card">
-          <h3>Total Clicks</h3>
-          <p>{analytics.total_clicks}</p>
-        </div>
-        <div className="card">
-          <h3>Unique Visitors</h3>
-          <p>{analytics.unique_visitors}</p>
-        </div>
-        <div className="card">
-          <h3>Recent Events</h3>
-          <p>
-            {analytics.recent_clicks.length}
-          </p>
-        </div>
       </div>
-      {/* CHARTS */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns:
-            "repeat(auto-fit,minmax(450px,1fr))",
-          gap: "25px",
-          marginTop: "30px",
-        }}
-      >
-        {/* LINE CHART */}
-        <div className="table-card">
-          <h2>Click Trend</h2>
-          <ResponsiveContainer
-            width="100%"
-            height={320}
-          >
-            <LineChart
-              data={analytics.chart_data}
-            >
-              <CartesianGrid
-                strokeDasharray="3 3"
-              />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="clicks"
-                stroke="#3b82f6"
-                strokeWidth={3}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+    );
+  }
+
+  const recentClicks = analytics.recent_clicks || [];
+  const chartData = analytics.chart_data || [];
+  const browserData = analytics.browser_chart || [];
+
+  return (
+    <div className="analytics-app">
+
+      {/* SIDEBAR */}
+      <aside className="sidebar">
+
+        <div className="sidebar-brand">
+          <div className="brand-mark">FL</div>
+
+          <div>
+            <strong>FlashLink</strong>
+            <span>URL management</span>
+          </div>
         </div>
-        {/* PIE CHART */}
-        <div className="table-card">
-          <h2>
-            Browser Distribution
-          </h2>
-          <ResponsiveContainer
-            width="100%"
-            height={320}
+
+        <nav className="sidebar-nav">
+
+          <div className="nav-section-title">
+            Workspace
+          </div>
+
+          <a
+            href="/dashboard"
+            className="nav-item"
           >
-            <PieChart>
-              <Pie
-                data={
-                  analytics.browser_chart
-                }
-                dataKey="value"
-                nameKey="name"
-                outerRadius={110}
-                label
+            <span>⌂</span>
+            Dashboard
+          </a>
+
+          <a
+            href="/dashboard#links"
+            className="nav-item"
+          >
+            <span>↗</span>
+            My Links
+          </a>
+
+          <div className="nav-item active">
+            <span>◌</span>
+            Analytics
+          </div>
+
+        </nav>
+
+        <div className="sidebar-bottom">
+
+          <div className="nav-section-title">
+            Account
+          </div>
+
+          <button
+            className="nav-item logout-link"
+            onClick={() =>
+              (window.location.href = "/dashboard")
+            }
+          >
+            <span>←</span>
+            Back to Dashboard
+          </button>
+
+        </div>
+
+      </aside>
+
+      {/* MAIN */}
+      <main className="analytics-main">
+
+        {/* TOPBAR */}
+        <header className="topbar">
+
+          <div className="mobile-brand">
+            <div className="brand-mark">
+              FL
+            </div>
+
+            <strong>FlashLink</strong>
+          </div>
+
+          <div className="topbar-right">
+            <div className="user-avatar">
+              U
+            </div>
+          </div>
+
+        </header>
+
+        {/* HEADER */}
+        <section className="analytics-header">
+
+          <div>
+
+            <p className="eyebrow">
+              Link analytics
+            </p>
+
+            <h1>Performance</h1>
+
+            <p className="analytics-description">
+              Detailed performance data for{" "}
+              <strong>
+                /{analytics.short_code}
+              </strong>
+            </p>
+
+          </div>
+
+          <button
+            className="secondary-button dashboard-back"
+            onClick={() =>
+              (window.location.href = "/dashboard")
+            }
+          >
+            ← Dashboard
+          </button>
+
+        </section>
+
+        {/* LINK INFO */}
+        <div className="analytics-link-info">
+
+          <div className="analytics-link-icon">
+            ↗
+          </div>
+
+          <div className="analytics-link-details">
+
+            <span>SHORT LINK</span>
+
+            <strong>
+              /{analytics.short_code}
+            </strong>
+
+          </div>
+
+        </div>
+
+        {/* KPIs */}
+        <section className="analytics-stats">
+
+          <div className="analytics-stat">
+
+            <div className="analytics-stat-label">
+              <span>Total clicks</span>
+              <span className="analytics-stat-icon">
+                ↗
+              </span>
+            </div>
+
+            <strong>
+              {analytics.total_clicks}
+            </strong>
+
+            <small>
+              All recorded redirects
+            </small>
+
+          </div>
+
+          <div className="analytics-stat">
+
+            <div className="analytics-stat-label">
+              <span>Unique visitors</span>
+              <span className="analytics-stat-icon">
+                ◉
+              </span>
+            </div>
+
+            <strong>
+              {analytics.unique_visitors}
+            </strong>
+
+            <small>
+              Distinct visitors
+            </small>
+
+          </div>
+
+          <div className="analytics-stat">
+
+            <div className="analytics-stat-label">
+              <span>Recent activity</span>
+              <span className="analytics-stat-icon green">
+                ●
+              </span>
+            </div>
+
+            <strong>
+              {recentClicks.length}
+            </strong>
+
+            <small>
+              Recent click events
+            </small>
+
+          </div>
+
+        </section>
+
+        {/* CHART GRID */}
+        <section className="analytics-chart-grid">
+
+          {/* CLICK TREND */}
+          <div className="analytics-panel large-panel">
+
+            <div className="analytics-panel-header">
+
+              <div>
+                <h2>Click trend</h2>
+                <p>
+                  Click activity over time
+                </p>
+              </div>
+
+              <span className="chart-badge">
+                Daily
+              </span>
+
+            </div>
+
+            <div className="chart-container">
+
+              <ResponsiveContainer
+                width="100%"
+                height={300}
               >
-                {analytics.browser_chart.map(
-                  (
-                    entry,
-                    index
-                  ) => (
-                    <Cell
-                      key={index}
-                      fill={
-                        COLORS[
-                          index %
-                            COLORS.length
-                        ]
-                      }
+                <LineChart
+                  data={chartData}
+                  margin={{
+                    top: 10,
+                    right: 10,
+                    left: -20,
+                    bottom: 0,
+                  }}
+                >
+
+                  <CartesianGrid
+                    stroke="#202a36"
+                    strokeDasharray="3 3"
+                    vertical={false}
+                  />
+
+                  <XAxis
+                    dataKey="date"
+                    stroke="#566274"
+                    tick={{
+                      fill: "#718096",
+                      fontSize: 11,
+                    }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+
+                  <YAxis
+                    stroke="#566274"
+                    tick={{
+                      fill: "#718096",
+                      fontSize: 11,
+                    }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+
+                  <Tooltip
+                    contentStyle={{
+                      background: "#151d27",
+                      border:
+                        "1px solid #293646",
+                      borderRadius: "8px",
+                      color: "#e8edf3",
+                      fontSize: "12px",
+                    }}
+                  />
+
+                  <Line
+                    type="monotone"
+                    dataKey="clicks"
+                    stroke="#3b82f6"
+                    strokeWidth={2}
+                    dot={false}
+                    activeDot={{
+                      r: 4,
+                    }}
+                  />
+
+                </LineChart>
+              </ResponsiveContainer>
+
+            </div>
+
+          </div>
+
+          {/* BROWSER */}
+          <div className="analytics-panel">
+
+            <div className="analytics-panel-header">
+
+              <div>
+                <h2>Browsers</h2>
+                <p>
+                  Visitor browser distribution
+                </p>
+              </div>
+
+            </div>
+
+            <div className="chart-container">
+
+              {browserData.length > 0 ? (
+                <ResponsiveContainer
+                  width="100%"
+                  height={300}
+                >
+                  <PieChart>
+
+                    <Pie
+                      data={browserData}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="45%"
+                      innerRadius={65}
+                      outerRadius={100}
+                      paddingAngle={3}
+                    >
+                      {browserData.map(
+                        (entry, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={
+                              COLORS[
+                                index %
+                                  COLORS.length
+                              ]
+                            }
+                          />
+                        )
+                      )}
+                    </Pie>
+
+                    <Tooltip
+                      contentStyle={{
+                        background:
+                          "#151d27",
+                        border:
+                          "1px solid #293646",
+                        borderRadius:
+                          "8px",
+                        color:
+                          "#e8edf3",
+                        fontSize:
+                          "12px",
+                      }}
                     />
-                  )
-                )}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-      {/* BAR CHART */}
-      <div
-        className="table-card"
-        style={{
-          marginTop: "30px",
-        }}
-      >
-        <h2>Traffic Overview</h2>
-        <ResponsiveContainer
-          width="100%"
-          height={350}
-        >
-          <BarChart
-            data={analytics.chart_data}
-          >
-            <CartesianGrid
-              strokeDasharray="3 3"
-            />
-            <XAxis dataKey="date" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar
-              dataKey="clicks"
-              fill="#22c55e"
-            />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-      {/* RECENT ACTIVITY */}
-      <div
-        className="table-card"
-        style={{
-          marginTop: "30px",
-        }}
-      >
-        <h2>
-          Recent Click Activity
-        </h2>
-        <table>
-          <thead>
-            <tr>
-              <th>IP Address</th>
-              <th>Browser</th>
-              <th>Timestamp</th>
-            </tr>
-          </thead>
-          <tbody>
-            {analytics.recent_clicks.length >
-            0 ? (
-              analytics.recent_clicks.map(
-                (
-                  click,
-                  index
-                ) => (
-                  <tr key={index}>
-                    <td>
-                      {
-                        click.ip_address
-                      }
-                    </td>
-                    <td>
-                      {
-                        click.user_agent
-                      }
-                    </td>
-                    <td>
-                      {new Date(
-                        click.timestamp
-                      ).toLocaleString()}
-                    </td>
+
+                    <Legend
+                      iconType="circle"
+                      wrapperStyle={{
+                        fontSize: "11px",
+                        color: "#8793a3",
+                      }}
+                    />
+
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="chart-empty">
+                  No browser data
+                </div>
+              )}
+
+            </div>
+
+          </div>
+
+        </section>
+
+        {/* TRAFFIC */}
+        <section className="analytics-panel traffic-panel">
+
+          <div className="analytics-panel-header">
+
+            <div>
+              <h2>Traffic overview</h2>
+              <p>
+                Redirect volume across the selected
+                period
+              </p>
+            </div>
+
+          </div>
+
+          <div className="chart-container">
+
+            <ResponsiveContainer
+              width="100%"
+              height={300}
+            >
+              <BarChart
+                data={chartData}
+                margin={{
+                  top: 10,
+                  right: 10,
+                  left: -20,
+                  bottom: 0,
+                }}
+              >
+
+                <CartesianGrid
+                  stroke="#202a36"
+                  strokeDasharray="3 3"
+                  vertical={false}
+                />
+
+                <XAxis
+                  dataKey="date"
+                  stroke="#566274"
+                  tick={{
+                    fill: "#718096",
+                    fontSize: 11,
+                  }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+
+                <YAxis
+                  stroke="#566274"
+                  tick={{
+                    fill: "#718096",
+                    fontSize: 11,
+                  }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+
+                <Tooltip
+                  contentStyle={{
+                    background: "#151d27",
+                    border:
+                      "1px solid #293646",
+                    borderRadius: "8px",
+                    color: "#e8edf3",
+                    fontSize: "12px",
+                  }}
+                />
+
+                <Bar
+                  dataKey="clicks"
+                  fill="#3b82f6"
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={35}
+                />
+
+              </BarChart>
+            </ResponsiveContainer>
+
+          </div>
+
+        </section>
+
+        {/* RECENT ACTIVITY */}
+        <section className="analytics-panel activity-panel">
+
+          <div className="analytics-panel-header">
+
+            <div>
+              <h2>Recent activity</h2>
+              <p>
+                Latest recorded click events
+              </p>
+            </div>
+
+            <span className="chart-badge">
+              {recentClicks.length} events
+            </span>
+
+          </div>
+
+          {recentClicks.length === 0 ? (
+            <div className="activity-empty">
+              No click activity recorded yet.
+            </div>
+          ) : (
+            <div className="activity-table-wrapper">
+
+              <table className="analytics-table">
+
+                <thead>
+                  <tr>
+                    <th>IP ADDRESS</th>
+                    <th>BROWSER</th>
+                    <th>TIME</th>
                   </tr>
-                )
-              )
-            ) : (
-              <tr>
-                <td colSpan="3">
-                  No Analytics Data
-                  Available
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+                </thead>
+
+                <tbody>
+
+                  {recentClicks.map(
+                    (click, index) => (
+                      <tr key={index}>
+
+                        <td>
+                          <span className="ip-value">
+                            {click.ip_address}
+                          </span>
+                        </td>
+
+                        <td>
+                          <span className="browser-value">
+                            {click.user_agent}
+                          </span>
+                        </td>
+
+                        <td>
+                          {new Date(
+                            click.timestamp
+                          ).toLocaleString()}
+                        </td>
+
+                      </tr>
+                    )
+                  )}
+
+                </tbody>
+
+              </table>
+
+            </div>
+          )}
+
+        </section>
+
+      </main>
+
+      {/* MOBILE NAV */}
+      <nav className="mobile-nav">
+
+        <a
+          href="/dashboard"
+          className="mobile-nav-item"
+        >
+          <span>⌂</span>
+          Home
+        </a>
+
+        <a
+          href="/dashboard#links"
+          className="mobile-nav-item"
+        >
+          <span>↗</span>
+          Links
+        </a>
+
+        <a
+          href={`/analytics/${shortCode}`}
+          className="mobile-nav-item active"
+        >
+          <span>◌</span>
+          Analytics
+        </a>
+
+      </nav>
+
     </div>
   );
 }
+
 export default Analytics;

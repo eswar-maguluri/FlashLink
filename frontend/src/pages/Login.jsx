@@ -2,88 +2,194 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
+const API_URL =
+  "https://flashlink-eswar-bch2bagaa6azcnc2.centralindia-01.azurewebsites.net";
+
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
+
   const loginUser = async () => {
     setMessage("");
-    if (!email || !password) {
-      setMessage("Please enter email and password");
+
+    if (!email.trim() || !password) {
+      setMessage("Please enter your email and password");
       return;
     }
+
     try {
+      setLoading(true);
+
       const response = await axios.post(
-        "https://flashlink-eswar-bch2bagaa6azcnc2.centralindia-01.azurewebsites.net/auth/login",
+        `${API_URL}/auth/login`,
         {
-          email,
+          email: email.trim(),
           password,
         }
       );
+
       localStorage.setItem(
         "token",
         response.data.access_token
       );
-      setMessage("Login Successful");
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 500);
+
+      navigate("/dashboard");
     } catch (error) {
       console.error(error);
+
       if (error.response?.status === 401) {
         setMessage("Invalid email or password");
-        const goRegister = window.confirm(
-          "Email not found or password is incorrect.\n\nDo you want to create a new account?"
-        );
-        if (goRegister) {
-          navigate("/register");
-        }
       } else {
         setMessage(
-          "Server error. Please try again later."
+          "Unable to sign in. Please try again."
         );
       }
+    } finally {
+      setLoading(false);
     }
   };
+
   return (
-    <div className="auth-page">
-      <div className="auth-card">
-        <h1>FlashLink</h1>
-        <h2>Welcome Back</h2>
-        <input
-          type="email"
-          placeholder="Email Address"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button onClick={loginUser}>
-          Login
-        </button>
-        {message && (
-          <p
-            style={{
-              color:
-                message === "Login Successful"
-                  ? "#22c55e"
-                  : "#ef4444",
-              marginTop: "10px",
-              textAlign: "center",
+    <div className="auth-layout">
+
+      {/* LEFT BRAND PANEL */}
+      <section className="auth-showcase">
+
+        <div className="auth-showcase-brand">
+          <div className="brand-mark">FL</div>
+
+          <div>
+            <strong>FlashLink</strong>
+            <span>URL management</span>
+          </div>
+        </div>
+
+        <div className="auth-showcase-content">
+
+          <p className="auth-overline">
+            SIMPLE. FAST. RELIABLE.
+          </p>
+
+          <h1>
+            Manage your links
+            <br />
+            in one place.
+          </h1>
+
+          <p>
+            Create short URLs, monitor clicks,
+            and understand how your links perform.
+          </p>
+
+        </div>
+
+        <div className="auth-showcase-footer">
+          <span>FlashLink</span>
+          <span>URL Management Platform</span>
+        </div>
+
+      </section>
+
+
+      {/* LOGIN */}
+      <main className="auth-form-area">
+
+        <div className="auth-form-card">
+
+          <div className="auth-mobile-brand">
+            <div className="brand-mark">FL</div>
+            <strong>FlashLink</strong>
+          </div>
+
+          <div className="auth-heading">
+
+            <p className="auth-label">
+              ACCOUNT
+            </p>
+
+            <h2>
+              Welcome back
+            </h2>
+
+            <p>
+              Sign in to manage your links.
+            </p>
+
+          </div>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              loginUser();
             }}
           >
-            {message}
-          </p>
-        )}
-        <Link to="/register">
-          Create Account
-        </Link>
-      </div>
+
+            <label>
+              Email address
+            </label>
+
+            <input
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              autoComplete="email"
+              onChange={(e) =>
+                setEmail(e.target.value)
+              }
+            />
+
+            <div className="password-label-row">
+              <label>Password</label>
+            </div>
+
+            <input
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              autoComplete="current-password"
+              onChange={(e) =>
+                setPassword(e.target.value)
+              }
+            />
+
+            {message && (
+              <div className="auth-message error">
+                <span>!</span>
+                {message}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className="auth-submit"
+              disabled={loading}
+            >
+              {loading
+                ? "Signing in..."
+                : "Sign in"}
+            </button>
+
+          </form>
+
+          <div className="auth-divider">
+            <span>New to FlashLink?</span>
+          </div>
+
+          <Link
+            to="/register"
+            className="auth-secondary-button"
+          >
+            Create an account
+          </Link>
+
+        </div>
+
+      </main>
+
     </div>
   );
 }
