@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .venv/
 venv/
 __pycache__/
@@ -11,3 +12,29 @@ frontend/dist/
 prometheus_data/
 .DS_Store
 Thumbs.db
+=======
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+>>>>>>> dfab376b5a51d3a4906c78252c6e93566373d2d3
