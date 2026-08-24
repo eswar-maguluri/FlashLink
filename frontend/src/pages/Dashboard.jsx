@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 
 const API_URL =
-  "https://flashlink-eswar-bch2bagaa6azcnc2.centralindia-01.azurewebsites.net";
+  "https://flashlink-api.onrender.com";
 
 function Dashboard() {
   const [url, setUrl] = useState("");

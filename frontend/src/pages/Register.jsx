@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const API_URL =
-  "https://flashlink-eswar-bch2bagaa6azcnc2.centralindia-01.azurewebsites.net";
+  "https://flashlink-api.onrender.com";
 
 function Register() {
   const [email, setEmail] = useState("");

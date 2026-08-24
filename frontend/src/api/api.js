@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://flashlink-eswar-bch2bagaa6azcnc2.centralindia-01.azurewebsites.net",
+  baseURL: "https://flashlink-api.onrender.com",
 });
 
 export default API;

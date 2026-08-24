@@ -18,7 +18,7 @@ import {
 } from "recharts";
 
 const API_URL =
-  "https://flashlink-eswar-bch2bagaa6azcnc2.centralindia-01.azurewebsites.net";
+  "https://flashlink-api.onrender.com";
 
 const COLORS = [
   "#3b82f6",
